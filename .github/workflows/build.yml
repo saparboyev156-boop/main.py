@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout code
@@ -27,25 +27,18 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libffi-dev libssl-dev aidl
-          pip install --upgrade buildozer cython
-
-      - name: Init and Configure Buildozer
-        run: |
-          buildozer init
-          # Kivy o'rniga pygame qo'shish va SDK litsenziyalarni avto-qabul qilish
-          sed -i 's/requirements = python3,kivy/requirements = python3,pygame/g' buildozer.spec
-          sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/g' buildozer.spec
+          sudo apt install -y git zip unzip python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libffi-dev libssl-dev aidl cmake
+          pip install --upgrade "cython<3.0.0" buildozer
 
       - name: Build APK with Buildozer
         run: |
-          yes | buildozer -v android debug
+          buildozer init
+          sed -i 's/requirements = python3,kivy/requirements = python3,pygame/g' buildozer.spec
+          sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/g' buildozer.spec
+          buildozer -v android debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: game-apk
           path: bin/*.apk
-
-          
-          
